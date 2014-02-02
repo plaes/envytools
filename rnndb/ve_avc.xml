@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="cedrus_copyright.xml"/>
+
+<domain name="AVC">
+    <reg32 offset="0x0b00" name="UNK_b00"/>
+    <doc>unk(not used in blob)</doc>
+    <reg32 offset="0x0b04" name="JPEG_CTRL"/> <!-- depends on engine? -->
+    <reg32 offset="0x0b04" name="H264_CTRL"/> <!-- depends on engine? -->
+    <doc>jpeg / h264 different settings</doc>
+    <reg32 offset="0x0b08" name="H264_QP"/>
+    <doc>H264 quantization parameters</doc>
+    <reg32 offset="0x0b10" name="H264_MOTION_EST"/>
+    <doc>Motion estimation parameters</doc>
+    <reg32 offset="0x0b14" name="CTRL"/>
+    <doc>AVC Encoder IRQ Control</doc>
+    <reg32 offset="0x0b18" name="TRIG"/>
+    <doc>AVC Encoder trigger</doc>
+    <reg32 offset="0x0b1C" name="STATUS"/>
+    <doc>AVC Encoder Busy Status</doc>
+    <reg32 offset="0x0b20" name="BITS_DATA"/>
+    <doc>AVC Encoder Bits Data</doc>
+    <reg32 offset="0x0b80" name="VLE_ADDR"/>
+    <doc>AVC Variable Length Encoder Start Address</doc>
+    <reg32 offset="0x0b84" name="VLE_END"/>
+    <doc>AVC Variable Length Encoder End Address</doc>
+    <reg32 offset="0x0b88" name="VLE_OFFSET"/>
+    <doc>AVC Variable Length Encoder Bit Offset</doc>
+    <reg32 offset="0x0b8c" name="VLE_MAX"/>
+    <doc>AVC Variable Length Encoder Maximum Bits</doc>
+    <reg32 offset="0x0b90" name="VLE_LENGTH"/>
+    <doc>AVC Variable Length Encoder Bit Length</doc>
+    <reg32 offset="0x0ba0" name="REF_LUMA"/>
+    <doc>Luma reference buffer</doc>
+    <reg32 offset="0x0ba4" name="REF_CHROMA"/>
+    <doc>Chroma reference buffer</doc>
+    <reg32 offset="0x0bb0" name="REC_LUMA"/>
+    <doc>Luma reconstruct buffer</doc>
+    <reg32 offset="0x0bb4" name="REC_CHROMA"/>
+    <doc>Chroma reconstruct buffer</doc>
+    <reg32 offset="0x0bb8" name="REF_SLUMA"/>
+    <doc>Smaller luma reference buffer ?</doc>
+    <reg32 offset="0x0bbc" name="REC_SLUMA"/>
+    <doc>Smaller luma reconstruct buffer ?</doc>
+    <reg32 offset="0x0bc0" name="MB_INFO"/>
+    <doc>Temporary buffer with macroblock information</doc>
+    <reg32 offset="0x0be0" name="SRAM_INDEX"/>
+    <doc>AVC VE SRAM Index</doc>
+    <reg32 offset="0x0be4" name="SRAM_DATA"/>
+    <doc>AVC VE SRAM Data</doc>
+</domain>
+</database>

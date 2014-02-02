@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="cedrus_copyright.xml"/>
+
+<domain name="MPEG">
+    <doc>MPEG Decoder Engine register definitions.</doc>
+    <reg32 offset="0x0100" name="PHDR"/>
+    <reg32 offset="0x0104" name="VOPHDR"/>
+    <reg32 offset="0x0108" name="SIZE"/>
+    <doc>Frame size in MPEG macroblocks (16x16)</doc>
+    <reg32 offset="0x010c" name="FRAME_SIZE"/>
+    <doc>Frame size in pixels</doc>
+    <reg32 offset="0x0110" name="MBA"/>
+    <doc>MPEG Macro Block Address register</doc>
+    <reg32 offset="0x0114" name="CTRL"/>
+    <doc>MPEG Control Register</doc>
+    <reg32 offset="0x0118" name="TRIG"/>
+    <doc>MPEG Decoding Trigger</doc>
+    <reg32 offset="0x011c" name="STATUS"/>
+    <doc>MACC MPEG Status register</doc>
+    <reg32 offset="0x0120" name="FRAME_DIST"/>
+    <doc>MPEG P and B Frame distance</doc>
+    <reg32 offset="0x0124" name="TRBTRDFLD"/>
+    <doc>Temporal References(TRB(B-VOP) and TRD)</doc>
+    <reg32 offset="0x0128" name="VLD_ADDR"/>
+    <doc>MPEG Variable Length Decoding Address</doc>
+    <reg32 offset="0x012c" name="VLD_OFFSET"/>
+    <doc>MPEG Variable Length Decoding Offset</doc>
+    <reg32 offset="0x0130" name="VLD_LEN"/>
+    <doc>MPEG Variable Length Decoding Length</doc>
+    <reg32 offset="0x0134" name="VBV_END"/>
+    <doc>MPEG VBV end - video source buffer end</doc>
+    <reg32 offset="0x0138" name="MBH_ADDR"/>
+    <doc>MBH buffer address</doc>
+    <reg32 offset="0x013c" name="DCAC_ADDR"/>
+    <doc>DCAC Buffer address</doc>
+    <reg32 offset="0x0140" name="BLK_OFFSET"/>
+    <doc>MPEG Block address???</doc>
+    <reg32 offset="0x0144" name="NCF_ADDR"/>
+    <doc>NFC buffer address</doc>
+    <reg32 offset="0x0148" name="REC_LUMA"/>
+    <doc>MPEG Luma reconstruct buffer</doc>
+    <reg32 offset="0x014c" name="REC_CHROMA"/>
+    <doc>MPEG Chroma reconstruct buffer</doc>
+    <reg32 offset="0x0150" name="FWD_LUMA"/>
+    <doc>MPEG Luma forward buffer</doc>
+    <reg32 offset="0x0154" name="FWD_CHROMA"/>
+    <doc>MPEG forward buffer</doc>
+    <reg32 offset="0x0158" name="BACK_LUMA"/>
+    <doc>MPEG Luma Back buffer</doc>
+    <reg32 offset="0x015c" name="BACK_CHROMA"/>
+    <doc>MPEG Chroma Back buffer</doc>
+    <reg32 offset="0x0160" name="SOCX"/>
+    <doc>MS-MPEG related</doc>
+    <reg32 offset="0x0164" name="SOCY"/>
+    <doc>MS-MPEG related</doc>
+    <reg32 offset="0x0168" name="SOL"/>
+    <doc>MS-MPEG related</doc>
+    <reg32 offset="0x016c" name="SDLX"/>
+    <doc>MS-MPEG related</doc>
+    <reg32 offset="0x0170" name="SDLY"/>
+    <doc>MS-MPEG related</doc>
+    <reg32 offset="0x0174" name="SPRITESHFT"/>
+    <doc>MS-MPEG related</doc>
+    <reg32 offset="0x0178" name="SDCX"/>
+    <doc>MS-MPEG related</doc>
+    <reg32 offset="0x017c" name="SDCY"/>
+    <doc>MS-MPEG related</doc>
+    <reg32 offset="0x0180" name="IQ_MIN_INPUT"/>
+    <doc>MPEG Inverse Quantization minimum input level</doc>
+    <reg32 offset="0x0184" name="IQ_INPUT"/>
+    <doc>MPEG Inverse Quantization input level</doc>
+    <reg32 offset="0x0188" name="MSMPEG4_HDR"/>
+    <doc>MPEG MS-Mpeg-4 header</doc>
+    <reg32 offset="0x018c" name="VP6_HDR"/>
+    <doc>MPEG VP6 Header</doc>
+    <reg32 offset="0x0190" name="IQ_IDCT_INPUT"/>
+    <doc>MPEG Inverse Quantization and Inverse Discrete Cosine Transform input</doc>
+    <reg32 offset="0x0194" name="MB_HEIGHT"/>
+    <doc>MPEG Macro Block Height</doc>
+    <reg32 offset="0x0198" name="MB_V1"/>
+    <doc>MPEG Macro Block Vector 1</doc>
+    <reg32 offset="0x019c" name="MB_V2"/>
+    <doc>MPEG Macro Block Vector 2</doc>
+    <reg32 offset="0x01a0" name="MB_V3"/>
+    <doc>MPEG Macro Block Vector 3</doc>
+    <reg32 offset="0x01a4" name="MB_V4"/>
+    <doc>MPEG Macro Block Vector 4</doc>
+    <reg32 offset="0x01a8" name="MB_V5"/>
+    <doc>MPEG Macro Block Vector 5</doc>
+    <reg32 offset="0x01ac" name="MB_V6"/>
+    <doc>MPEG Macro Block Vector 6</doc>
+    <reg32 offset="0x01b0" name="MB_V7"/>
+    <doc>MPEG Macro Block Vector 7</doc>
+    <reg32 offset="0x01b4" name="MB_V8"/>
+    <doc>MPEG Macro Block Vector 8</doc>
+    <reg32 offset="0x01b8" name="JPEG_SIZE"/>
+    <doc>JPEG Size</doc>
+    <reg32 offset="0x01bc" name="JPEG_MCU"/>
+    <doc>JPEG Minimum Coded Unit</doc>
+    <reg32 offset="0x01c0" name="JPEG_RES_INT"/>
+    <doc>JPEG Restart Interval</doc>
+    <reg32 offset="0x01c4" name="ERROR"/>
+    <doc>MPEG Error flags</doc>
+    <reg32 offset="0x01c8" name="CTR_MB"/>
+    <doc>(Macroblock Control??)</doc>
+    <reg32 offset="0x01cc" name="ROT_LUMA"/>
+    <doc>MPEG Rotate-Scale Luma buffer</doc>
+    <reg32 offset="0x01d0" name="ROT_CHROMA"/>
+    <doc>MPEG Rotate-Scale Chroma buffer</doc>
+    <reg32 offset="0x01d4" name="ROTSCALE_CTRL"/>
+    <doc>Control Rotate/Scale Buffer</doc>
+    <reg32 offset="0x01d8" name="JPEG_MCU_START"/>
+    <doc>JPEG Macro Cell Unit Start</doc>
+    <reg32 offset="0x01dc" name="JPEG_MCU_END"/>
+    <doc>JPEG Macro Cell Unit End</doc>
+    <reg32 offset="0x01e0" name="SRAM_RW_OFFSET"/>
+    <doc>Auto incremental pointer for read/write VE SRAM</doc>
+    <reg32 offset="0x01e4" name="SRAM_RW_DATA"/>
+    <doc>FIFO Like Data register for write/read VE SRAM</doc>
+    <reg32 offset="0x01f0" name="START_CODE_BITOFFSET"/>
+    <doc>MPEG start code search result(may not present in a10 (a13+))</doc>
+</domain>
+</database>

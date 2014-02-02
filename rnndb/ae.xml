@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="cedrus_copyright.xml"/>
+
+<domain name="ACE">
+    <doc>Base address: 0x01c0a000</doc>
+    <reg32 offset="0x0000" name="MODE_SELECTOR"/>
+    <reg32 offset="0x0004" name="RESET"/>
+</domain>
+
+<domain name="AE">
+    <reg32 offset="0x0108" name="INT_EN_REG"/>
+    <reg32 offset="0x0124" name="STATUS">
+    <brief>Status register</brief>
+    </reg32>
+</domain>
+
+</database>

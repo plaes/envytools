@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="cedrus_copyright.xml"/>
+
+<domain name="ISP">
+    <reg32 offset="0x0a00" name="IC_SIZE"/>
+    <doc>ISP source picture size in macroblocks (16x16)</doc>
+    <reg32 offset="0x0a04" name="IC_STRIDE"/>
+    <doc>ISP source picture stride</doc>
+    <reg32 offset="0x0a08" name="TRL"/>
+    <doc>ISP IRQ Control</doc>
+    <reg32 offset="0x0a0c" name="RIG"/>
+    <doc>ISP Trigger</doc>
+    <reg32 offset="0x0a2c" name="CALER_SIZE"/>
+    <doc>ISP scaler frame size/16</doc>
+    <reg32 offset="0x0a30" name="CALER_OFFSET_Y"/>
+    <doc>ISP scaler picture offset for luma</doc>
+    <reg32 offset="0x0a34" name="CALER_OFFSET_C"/>
+    <doc>ISP scaler picture offset for chroma</doc>
+    <reg32 offset="0x0a38" name="CALER_FACTOR"/>
+    <doc>ISP scaler picture scale factor</doc>
+    <!--
+    <reg32 offset="???" name=""/>
+    <doc>4B  ISP PHY Buffer offset</doc>
+    <reg32 offset="???" name=""/>
+    <doc>4B  ISP PHY Buffer offset</doc>
+    <reg32 offset="???" name=""/>
+    <doc>4B  ISP PHY Buffer offset</doc>
+    -->
+    <reg32 offset="0x0a74" name="UNK_a74"/>
+    <reg32 offset="0x0a78" name="B_THUMB_LUMA"/>
+    <doc>ISP THUMB WriteBack PHY LUMA Address</doc>
+    <reg32 offset="0x0a7c" name="B_THUMB_CHROMA"/>
+    <doc>ISP THUMB WriteBack PHY CHROMA Adress</doc>
+    <reg32 offset="0x0ae0" name="RAM_INDEX"/>
+    <doc>ISP VE SRAM Index</doc>
+    <reg32 offset="0x0ae4" name="RAM_DATA"/>
+    <doc>ISP VE SRAM Data</doc>
+</domain>
+</database>

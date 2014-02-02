@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="cedrus_copyright.xml"/>
+
+
+<domain name="VE">
+    <doc>
+    General Video Engine register definitions.
+    Base address is 0x01c0e000
+    </doc>
+    <brief>General Video Engine register definitions.</brief>
+    <reg32 offset="0x0000" name="CTRL">
+        <brief>Sub-Engine Select and RAM type select</brief>
+    </reg32>
+    <reg32 offset="0x0004" name="RESET"/>
+    <doc>Sub-Engines Reset</doc>
+    <reg32 offset="0x0008" name="CYCLES_COUNTER"/>
+    <doc>Clock Cycles counter</doc>
+    <reg32 offset="0x000c" name="OVERTIMETH"/>      <!-- TODO: check -->
+    <reg32 offset="0x0010" name="MMCREQ_WNUM"/>     <!-- TODO: check -->
+    <reg32 offset="0x0014" name="CACHEREG_WNUM"/>   <!-- TODO: check -->
+    <reg32 offset="0x001c" name="STATUS"/>
+    <doc>Busy status</doc>
+    <reg32 offset="0x0020" name="RDDATA_COUNTER"/>
+    <doc>DRAM Read counter</doc>
+    <reg32 offset="0x0024" name="WRDATA_COUNTER"/>
+    <doc>DRAM Write counter</doc>
+    <reg32 offset="0x0050" name="UNK_0050"/> <!-- unknown (needed on A13 for H264 decoding) -->
+    <reg32 offset="0x0054" name="UNK_0054"/> <!-- unknown (needed on A13, buffer address) -->
+    <reg32 offset="0x0058" name="UNK_0058"/> <!-- unknown (needed on A13, buffer address) -->
+    <!-- 
+         MACC_VE_LUMA_HIST_THR[0-3]     0x0080 - 0x008c     4B  Luma histogram threshold
+         MACC_VE_LUMA_HIST_VAL[0-15]    0x0090 - 0x00cc     4B  Luma histogram output values
+    -->
+    <reg32 offset="0x00f0" name="VERSION"/>
+    <doc>IP Version register</doc>
+</domain>
+</database>

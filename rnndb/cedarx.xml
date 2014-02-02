@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="cedrus_copyright.xml"/>
+
+<import file="ve_general.xml"/>
+<import file="ve_mpeg.xml"/>
+<import file="ve_h264.xml"/>
+<import file="ve_vc1.xml"/>
+<import file="ve_rmvb.xml"/>
+<import file="ve_isp.xml"/>
+
+<import file="ae.xml"/>
+</database>

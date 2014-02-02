@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="cedrus_copyright.xml"/>
+<domain name="H264">
+    <reg32 offset="0x0200" name="SEQ_HDR"/>
+    <doc>H264 Sequence header</doc>
+    <reg32 offset="0x0204" name="PIC_HDR"/>
+    <doc>H264 Picture header</doc>
+    <reg32 offset="0x0208" name="SLICE_HDR"/>
+    <doc>H264 Slice header</doc>
+    <reg32 offset="0x020c" name="SLICE_HDR2"/>
+    <doc>H264 Slice header</doc>
+    <reg32 offset="0x0210" name="PRED_WEIGHT"/>
+    <doc>H264 weighted prediction parameters</doc>
+    <reg32 offset="0x0214" name="VP8_HDR"/>
+    <doc>H264 VP8 Picture header</doc>
+    <reg32 offset="0x0218" name="QINDEX"/>
+    <doc>H264 Quantizer settings (VP8)</doc>
+    <reg32 offset="0x021c" name="VP8_PART_OFFSET"/><!-- depends on the selected engine? -->
+    <doc>VP8 partition offset</doc>
+    <reg32 offset="0x021c" name="QP"/><!-- depends on the selected engine? -->
+    <doc>H264 QP parameters (VP8 partition offset)</doc>
+    <reg32 offset="0x0220" name="CTRL"/>
+    <doc>H264 Control Register</doc>
+    <reg32 offset="0x0224" name="TRIG"/>
+    <doc>H264 Trigger Register</doc>
+    <reg32 offset="0x0228" name="STATUS"/>
+    <doc>H264 Status Register</doc>
+    <reg32 offset="0x022c" name="CUR_MBNUM"/>
+    <doc>H264 current Macroblock</doc>
+    <reg32 offset="0x0230" name="VLD_ADDR"/>
+    <doc>H264 Variable Length Decoder Address</doc>
+    <reg32 offset="0x0234" name="VLD_OFFSET"/>
+    <doc>H264 Variable Length Decoder Bit Offset</doc>
+    <reg32 offset="0x0238" name="VLD_LEN"/>
+    <doc>H264 Variable Length Decoder Bit Length</doc>
+    <reg32 offset="0x023c" name="VLD_END"/>
+    <doc>H264 Variable Length Decoder End Address</doc>
+    <reg32 offset="0x0240" name="SDROT_CTRL"/>
+    <doc>H264 Scale Rotate buffer control</doc>
+    <reg32 offset="0x0244" name="SDROT_LUMA"/>
+    <doc>H264 Scale Rotate buffer Luma color component</doc>
+    <reg32 offset="0x0248" name="SDROT_CHROMA"/>
+    <doc>H264 Scale Rotate buffer Chroma color component</doc>
+    <reg32 offset="0x024c" name="OUTPUT_FRAME_INDEX"/>
+    <doc>H264 output frame index in dpb</doc>
+    <reg32 offset="0x0250" name="ENTROPY_PROBS"/>
+    <doc>H264 ??? (VP8 entropy brobabilities table address)</doc>
+    <reg32 offset="0x0254" name="FSTDATA_PARTLEN"/>
+    <doc>H264 ??? (VP8 First partition length)</doc>
+    <reg32 offset="0x0258" name="PIC_MBSIZE"/>
+    <doc>H264 Picture size in macroblocks</doc>
+    <reg32 offset="0x025c" name="PIC_BOUNDARYSIZE"/>
+    <doc>H264 Picture size in pixels</doc>
+    <reg32 offset="0x0260" name="MB_ADDR"/>
+    <doc>H264 Current macroblock position</doc>
+    <reg32 offset="0x0264" name="MB_NB1"/>
+    <doc>H264 ??? MbNeightbour1</doc>
+    <reg32 offset="0x0268" name="MB_NB2"/>
+    <doc>H264 MbNeightbour2</doc>
+    <reg32 offset="0x026c" name="MB_NB3"/>
+    <reg32 offset="0x0270" name="MB_NB4"/>
+    <reg32 offset="0x0274" name="MB_NB5"/>
+    <reg32 offset="0x0278" name="MB_NB6"/>
+    <reg32 offset="0x027c" name="MB_NB7"/>
+    <reg32 offset="0x0280" name="MB_NB8"/>
+    <reg32 offset="0x0284" name="UNK_284"/>
+    <reg32 offset="0x0288" name="UNK_288"/>
+    <reg32 offset="0x028c" name="UNK_28c"/>
+    <reg32 offset="0x0290" name="MB_QP"/>
+    <reg32 offset="0x0294" name="UNK_294"/>
+    <reg32 offset="0x0298" name="UNK_298"/>
+    <reg32 offset="0x029c" name="UNK_29c"/>
+    <reg32 offset="0x02a0" name="UNK_2a0"/>
+    <reg32 offset="0x02a4" name="UNK_2a4"/>
+    <reg32 offset="0x02a8" name="UNK_2a8"/>
+    <reg32 offset="0x02ac" name="REC_LUMA"/>
+    <doc>H264 Luma reconstruct buffer</doc>
+    <reg32 offset="0x02b0" name="FWD_LUMA"/>
+    <doc>H264 Luma forward buffer</doc>
+    <reg32 offset="0x02b4" name="BACK_LUMA"/>
+    <doc>H264 Luma back buffer</doc>
+    <reg32 offset="0x02b8" name="ERROR"/>
+    <doc>H264 Error</doc>
+    <reg32 offset="0x02bc" name="UNK_2bc"/>
+    <reg32 offset="0x02c0" name="UNK_2c0"/>
+    <reg32 offset="0x02c4" name="UNK_2c4"/>
+    <reg32 offset="0x02c8" name="UNK_2c8"/>
+    <reg32 offset="0x02cc" name="UNK_2cc"/>
+    <reg32 offset="0x02d0" name="REC_CHROMA"/>
+    <doc>H264 Chroma reconstruct buffer</doc>
+    <reg32 offset="0x02d4" name="FWD_CHROMA"/>
+    <doc>H264 Chroma forward buffer</doc>
+    <reg32 offset="0x02d8" name="BACK_CHROMA"/>
+    <doc>H264 Chroma back buffer</doc>
+    <reg32 offset="0x02dc" name="BASIC_BITS_DATA"/>
+    <doc>H264 Basic bits data</doc>
+    <reg32 offset="0x02e0" name="RAM_WRITE_PTR"/>
+    <doc>H264 ram write pointer</doc>
+    <reg32 offset="0x02e4" name="RAM_WRITE_DATA"/>
+    <doc>H264 ram write data</doc>
+    <reg32 offset="0x02e8" name="ALT_LUMA"/>
+    <doc>H264 Alternate Luma buffer</doc>
+    <reg32 offset="0x02ec" name="ALT_CHROMA"/>
+    <doc>H264 Alternate Chroma buffer</doc>
+    <reg32 offset="0x02f0" name="SEG_MB_LV0"/>
+    <doc>H264 ??? Segment Mb Level 0</doc>
+    <reg32 offset="0x02f4" name="SEG_MB_LV1"/>
+    <doc>H264 ??? Segment Mb Level 1</doc>
+    <reg32 offset="0x02f8" name="REF_LF_DELTA"/>
+    <doc>H264 ??? (VP8 ref lf deltas)</doc>
+    <reg32 offset="0x02fc" name="MODE_LF_DELTA"/>
+    <doc>H264 ??? (VP8 mode lf deltas)</doc>
+</domain>
+</database>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="cedrus_copyright.xml"/>
+
+<domain name="RMVB">
+    <reg32 offset="0x0414" name="CTRL"/>
+    <doc>RMVB IRQ Control</doc>
+    <reg32 offset="0x041c" name="STATUS"/>
+    <doc>RMVB Status</doc>
+</domain>
+</database>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="cedrus_copyright.xml"/>
+
+<domain name="VC1">
+    <reg32 offset="0x0300" name="EPHS"/>
+    <reg32 offset="0x0304" name="PIC_CTRL"/>
+    <reg32 offset="0x0308" name="PIC_QP"/>
+    <reg32 offset="0x030c" name="PIC_MV"/>
+    <reg32 offset="0x0310" name="PIC_INTEN_COMP"/>
+    <reg32 offset="0x0314" name="PIC_INTERLANCE"/>
+    <reg32 offset="0x0318" name="HDR_LEN"/>
+    <reg32 offset="0x031c" name="FSIZE"/>
+    <reg32 offset="0x0320" name="PIC_SIZE"/>
+    <reg32 offset="0x0324" name="CTRL"/>
+    <doc>VC1 Decoder Control</doc>
+    <reg32 offset="0x0328" name="START_TYPE"/>
+    <reg32 offset="0x032c" name="STATUS"/>
+    <doc>VC1 Status</doc>
+    <reg32 offset="0x0330" name="VBV_BASE_ADDR"/>
+    <doc>VC1 Source buffer address</doc>
+    <reg32 offset="0x0334" name="VLD_OFFSET"/>
+    <doc>VC1 Variable Length Decoder Offset</doc>
+    <reg32 offset="0x0338" name="VBV_LEN"/>
+    <doc>VC1 length of source video buffer</doc>
+    <reg32 offset="0x033c" name="VBV_END_ADDR"/>
+    <doc>VC1 last address of source video buffer</doc>
+    <reg32 offset="0x0340" name="REC_FRAME_CHROMA"/>
+    <doc>VC1 Chroma Reconstruct frame</doc>
+    <reg32 offset="0x0344" name="REC_FRAME_LUMA"/>
+    <doc>VC1 Luma Reconstruct frame</doc>
+    <reg32 offset="0x0348" name="FWD_FRAME_CHROMA"/>
+    <doc>VC1 Chroma Forward Frame</doc>
+    <reg32 offset="0x034c" name="FWD_FRAME_LUMA"/>
+    <doc>VC1 Luma Forward Frame</doc>
+    <reg32 offset="0x0350" name="BACK_CHROMA"/>
+    <doc>VC1 Chroma back buffer</doc>
+    <reg32 offset="0x0354" name="BACK_LUMA"/>
+    <doc>VC1 Luma back buffer</doc>
+    <reg32 offset="0x0358" name="MBHADDR"/>
+    <reg32 offset="0x035c" name="DCAPRED_ADDR"/>
+    <reg32 offset="0x0360" name="BITPLANE_ADDR"/>
+    <reg32 offset="0x0364" name="MBINFO_ADDR"/> <!-- COLMVINFOADDR ?? -->
+    <reg32 offset="0x0368" name="UNK_368"/>
+    <reg32 offset="0x036c" name="UNK_36c"/>
+    <reg32 offset="0x0370" name="MBA"/>
+    <reg32 offset="0x0374" name="MBHDR"/>
+    <reg32 offset="0x0378" name="LUMA_TRANSFORM"/>
+    <reg32 offset="0x037c" name="MBCBF"/>
+    <reg32 offset="0x0380" name="MBM_V1"/>
+    <reg32 offset="0x0384" name="MBM_V2"/>
+    <reg32 offset="0x0388" name="MBM_V3"/>
+    <reg32 offset="0x038c" name="MBM_V4"/>
+    <reg32 offset="0x0390" name="MBM_V5"/>
+    <reg32 offset="0x0394" name="MBM_V6"/>
+    <reg32 offset="0x0398" name="MBM_V7"/>
+    <reg32 offset="0x039c" name="MBM_V8"/>
+    <reg32 offset="0x03a0" name="UNK_3a0"/>
+    <reg32 offset="0x03a4" name="UNK_3a4"/>
+    <reg32 offset="0x03a8" name="UNK_3a8"/>
+    <reg32 offset="0x03ac" name="UNK_3ac"/>
+    <reg32 offset="0x03b0" name="UNK_3b0"/>
+    <reg32 offset="0x03b4" name="UNK_3b4"/>
+    <reg32 offset="0x03b8" name="ERROR"/>
+    <reg32 offset="0x03bc" name="CRT_MB_NUM"/>
+    <reg32 offset="0x03c0" name="EXTRA_CTRL"/>
+    <reg32 offset="0x03c4" name="EXTRA_CBUF_ADDR"/>
+    <reg32 offset="0x03c8" name="EXTRA_YBUF_ADDR"/>
+    <reg32 offset="0x03d0" name="OVERLAP_UP_ADDR"/>
+    <reg32 offset="0x03d4" name="DBLK_ABOVE_ADDR"/>
+    <reg32 offset="0x03d8" name="UNK_3d8"/>
+    <reg32 offset="0x03dc" name="BITS_RETDATA"/>
+    <reg32 offset="0x03fc" name="DEBUG_BUF_ADDR"/>
+</domain>
+</database>
