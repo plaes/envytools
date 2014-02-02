@@ -57,25 +57,6 @@ int rnndec_varadd(struct rnndeccontext *ctx, char *varset, char *variant) {
 	return 0;
 }
 
-int rnndec_varmod(struct rnndeccontext *ctx, char *varset, char *variant) {
-	struct rnnenum *en = rnn_findenum(ctx->db, varset);
-	if (!en) {
-		fprintf (stderr, "Enum %s doesn't exist in database!\n", varset);
-		return 0;
-	}
-	int i;
-	for (i = 0; i < en->valsnum; i++)
-		if (!strcasecmp(en->vals[i]->name, variant)) {
-			struct rnndecvariant *ci = NULL;
-			FINDARRAY(ctx->vars, ci, ci->en == en);
-			ci->variant = i;
-			return 1;
-		}
-	fprintf (stderr, "Variant %s doesn't exist in enum %s!\n", variant, varset);
-	return 0;
-}
-
-
 int rnndec_varmatch(struct rnndeccontext *ctx, struct rnnvarinfo *vi) {
 	if (vi->dead)
 		return 0;
@@ -126,6 +107,29 @@ static float float16(uint16_t val)
 	return u.f;
 }
 
+static const char *rnndec_decode_enum_val(struct rnndeccontext *ctx,
+		struct rnnvalue **vals, int valsnum, uint64_t value)
+{
+	int i;
+	for (i = 0; i < valsnum; i++)
+		if (rnndec_varmatch(ctx, &vals[i]->varinfo) &&
+				vals[i]->valvalid && vals[i]->value == value)
+			return vals[i]->name;
+	return NULL;
+}
+
+char *rnndec_decode_enum(struct rnndeccontext *ctx, const char *enumname, uint64_t enumval)
+{
+	struct rnnenum *en = rnn_findenum (ctx->db, enumname);
+	if (en) {
+		int i;
+		for (i = 0; i < en->valsnum; i++)
+			if (en->vals[i]->valvalid && en->vals[i]->value == enumval)
+				return en->vals[i]->name;
+	}
+	return NULL;
+}
+
 char *rnndec_decodeval(struct rnndeccontext *ctx, struct rnntypeinfo *ti, uint64_t value, int width) {
 	char *res = 0;
 	int i;
@@ -138,7 +142,6 @@ char *rnndec_decodeval(struct rnndeccontext *ctx, struct rnntypeinfo *ti, uint64
 	if (!ti)
 		goto failhex;
 	if (ti->shr) value <<= ti->shr;
-	if (ti->add) value += ti->add;
 	switch (ti->type) {
 		case RNN_TTYPE_ENUM:
 			vals = ti->eenum->vals;
@@ -149,11 +152,11 @@ char *rnndec_decodeval(struct rnndeccontext *ctx, struct rnntypeinfo *ti, uint64
 			valsnum = ti->valsnum;
 			goto doenum;
 		doenum:
-			for (i = 0; i < valsnum; i++)
-				if (rnndec_varmatch(ctx, &vals[i]->varinfo) && vals[i]->valvalid && vals[i]->value == value) {
-					asprintf (&res, "%s%s%s", ctx->colors->eval, vals[i]->name, ctx->colors->reset);
-					return res;
-				}
+			tmp = rnndec_decode_enum_val(ctx, vals, valsnum, value);
+			if (tmp) {
+				asprintf (&res, "%s%s%s", ctx->colors->eval, tmp, ctx->colors->reset);
+				return res;
+			}
 			goto failhex;
 		case RNN_TTYPE_BITSET:
 			bitfields = ti->ebitset->bitfields;
@@ -215,16 +218,19 @@ char *rnndec_decodeval(struct rnndeccontext *ctx, struct rnntypeinfo *ti, uint64
 			return res;
 		case RNN_TTYPE_FIXED:
 			if (value & UINT64_C(1) << (width-1)) {
-				asprintf (&res, "%s-%lf%s (%08"PRIx64")", ctx->colors->num,
+				asprintf (&res, "%s-%lf%s", ctx->colors->num,
 						((double)((UINT64_C(1) << width) - value)) / ((double)(1 << ti->radix)),
-						ctx->colors->reset, value);
+						ctx->colors->reset);
 				return res;
 			}
 			/* fallthrough */
 		case RNN_TTYPE_UFIXED:
-			asprintf (&res, "%s%lf%s (%08"PRIx64")", ctx->colors->num,
-					((double)value) / ((double)(1 << ti->radix)),
-					ctx->colors->reset, value);
+			asprintf (&res, "%s%lf%s", ctx->colors->num,
+					((double)value) / ((double)(1LL << ti->radix)),
+					ctx->colors->reset);
+			return res;
+		case RNN_TTYPE_A3XX_REGID:
+			asprintf (&res, "%sr%d.%c%s", ctx->colors->num, (value >> 2), "xyzw"[value & 0x3], ctx->colors->reset);
 			return res;
 		case RNN_TTYPE_UINT:
 			asprintf (&res, "%s%"PRIu64"%s", ctx->colors->num, value, ctx->colors->reset);
@@ -268,11 +274,47 @@ char *rnndec_decodeval(struct rnndeccontext *ctx, struct rnntypeinfo *ti, uint64
 	}
 }
 
-static char *appendidx (struct rnndeccontext *ctx, char *name, uint64_t idx) {
-	char *res;
-	asprintf (&res, "%s[%s%#"PRIx64"%s]", name, ctx->colors->num, idx, ctx->colors->reset);
+static char *appendidx (struct rnndeccontext *ctx, char *name, uint64_t idx, struct rnnenum *index) {
+	char *res, *index_name = NULL;
+
+	if (index)
+		index_name = rnndec_decode_enum_val(ctx, index->vals, index->valsnum, idx);
+
+	if (index_name)
+		asprintf (&res, "%s[%s%s%s]", name, ctx->colors->eval, index_name, ctx->colors->reset);
+	else
+		asprintf (&res, "%s[%s%#"PRIx64"%s]", name, ctx->colors->num, idx, ctx->colors->reset);
+
 	free (name);
 	return res;
+}
+
+/* This could probably be made to work for stripes too.. */
+static int get_array_idx_offset(struct rnndelem *elem, uint64_t addr, uint64_t *idx, uint64_t *offset)
+{
+	if (elem->offsets) {
+		int i;
+		for (i = 0; i < elem->offsetsnum; i++) {
+			uint64_t o = elem->offsets[i];
+			if ((o <= addr) && (addr < (o + elem->stride))) {
+				*idx = i;
+				*offset = addr - o;
+				return 0;
+			}
+		}
+		return -1;
+	} else {
+		if (addr < elem->offset)
+			return -1;
+
+		*idx = (addr - elem->offset) / elem->stride;
+		*offset = (addr - elem->offset) % elem->stride;
+
+		if (elem->length && (*idx >= elem->length))
+			return -1;
+
+		return 0;
+	}
 }
 
 static struct rnndecaddrinfo *trymatch (struct rnndeccontext *ctx, struct rnndelem **elems, int elemsnum, uint64_t addr, int write, int dwidth, uint64_t *indices, int indicesnum) {
@@ -303,9 +345,9 @@ static struct rnndecaddrinfo *trymatch (struct rnndeccontext *ctx, struct rnndel
 				res->width = elems[i]->width;
 				asprintf (&res->name, "%s%s%s", ctx->colors->rname, elems[i]->name, ctx->colors->reset);
 				for (j = 0; j < indicesnum; j++)
-					res->name = appendidx(ctx, res->name, indices[j]);
+					res->name = appendidx(ctx, res->name, indices[j], NULL);
 				if (elems[i]->length != 1)
-					res->name = appendidx(ctx, res->name, idx);
+					res->name = appendidx(ctx, res->name, idx, elems[i]->index);
 				if (offset) {
 					asprintf (&tmp, "%s+%s%#"PRIx64"%s", res->name, ctx->colors->err, offset, ctx->colors->reset);
 					free(res->name);
@@ -333,9 +375,9 @@ static struct rnndecaddrinfo *trymatch (struct rnndeccontext *ctx, struct rnndel
 						return res;
 					asprintf (&name, "%s%s%s", ctx->colors->rname, elems[i]->name, ctx->colors->reset);
 					for (j = 0; j < indicesnum; j++)
-						name = appendidx(ctx, name, indices[j]);
+						name = appendidx(ctx, name, indices[j], NULL);
 					if (elems[i]->length != 1)
-						name = appendidx(ctx, name, idx);
+						name = appendidx(ctx, name, idx, elems[i]->index);
 					asprintf (&tmp, "%s.%s", name, res->name);
 					free(name);
 					free(res->name);
@@ -344,17 +386,13 @@ static struct rnndecaddrinfo *trymatch (struct rnndeccontext *ctx, struct rnndel
 				}
 				break;
 			case RNN_ETYPE_ARRAY:
-				if (addr < elems[i]->offset)
-					break;
-				idx = (addr-elems[i]->offset)/elems[i]->stride;
-				offset = (addr-elems[i]->offset)%elems[i]->stride;
-				if (elems[i]->length && idx >= elems[i]->length)
+				if (get_array_idx_offset(elems[i], addr, &idx, &offset))
 					break;
 				asprintf (&name, "%s%s%s", ctx->colors->rname, elems[i]->name, ctx->colors->reset);
 				for (j = 0; j < indicesnum; j++)
-					name = appendidx(ctx, name, indices[j]);
+					name = appendidx(ctx, name, indices[j], NULL);
 				if (elems[i]->length != 1)
-					name = appendidx(ctx, name, idx);
+					name = appendidx(ctx, name, idx, elems[i]->index);
 				if ((res = trymatch (ctx, elems[i]->subelems, elems[i]->subelemsnum, offset, write, dwidth, 0, 0))) {
 					asprintf (&tmp, "%s.%s", name, res->name);
 					free(name);
@@ -372,6 +410,12 @@ static struct rnndecaddrinfo *trymatch (struct rnndeccontext *ctx, struct rnndel
 		}
 	}
 	return 0;
+}
+
+int rnndec_checkaddr(struct rnndeccontext *ctx, struct rnndomain *domain, uint64_t addr, int write) {
+	struct rnndecaddrinfo *res = trymatch(ctx, domain->subelems, domain->subelemsnum, addr, write, domain->width, 0, 0);
+	free(res);
+	return res != NULL;
 }
 
 struct rnndecaddrinfo *rnndec_decodeaddr(struct rnndeccontext *ctx, struct rnndomain *domain, uint64_t addr, int write) {

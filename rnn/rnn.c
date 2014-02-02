@@ -118,8 +118,8 @@ static int getboolattrib (struct rnndb *db, char *file, int line, xmlAttr *attr)
 	return 0;
 }
 
-static uint64_t getnumattrib (struct rnndb *db, char *file, int line, xmlAttr *attr) {
-	char *c = getattrib(db, file, line, attr);
+static uint64_t getnum(struct rnndb *db, char *file, int line, xmlAttr *attr, char *c)
+{
 	char *cc;
 	uint64_t res;
 	if (strchr(c, 'x') || strchr(c, 'X'))
@@ -131,6 +131,11 @@ static uint64_t getnumattrib (struct rnndb *db, char *file, int line, xmlAttr *a
 		db->estatus = 1;
 	}
 	return res;
+}
+
+static uint64_t getnumattrib (struct rnndb *db, char *file, int line, xmlAttr *attr) {
+	char *c = getattrib(db, file, line, attr);
+	return getnum(db, file, line, attr, c);
 }
 
 static int trytop (struct rnndb *db, char *file, xmlNode *node);
@@ -165,9 +170,6 @@ static int trytypeattr (struct rnndb *db, char *file, xmlNode *node, xmlAttr *at
 	if (!strcmp(attr->name, "shr")) {
 		ti->shr = getnumattrib(db, file, node->line, attr);
 		return 1;
-	} else if (!strcmp(attr->name, "add")) {
-		ti->add = getnumattrib(db, file, node->line, attr);
-		return 1;
 	} else if (!strcmp(attr->name, "min")) {
 		ti->min = getnumattrib(db, file, node->line, attr);
 		ti->minvalid = 1;
@@ -186,6 +188,7 @@ static int trytypeattr (struct rnndb *db, char *file, xmlNode *node, xmlAttr *at
 	} else if (!strcmp(attr->name, "radix")) {
 		ti->radix = getnumattrib(db, file, node->line, attr);
 		ti->radixvalid = 1;
+		return 1;
 	}
 	return 0;
 }
@@ -492,6 +495,17 @@ static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 				res->name = strdup(getattrib(db, file, node->line, attr));
 			} else if (!strcmp(attr->name, "offset")) {
 				res->offset = getnumattrib(db, file, node->line, attr);
+			} else if (!strcmp(attr->name, "offsets")) {
+				char *str = strdup(getattrib(db, file, node->line, attr));
+				char *tok, *save, *tmp = str;
+				while ((tok = strtok_r(str, ",", &save))) {
+					uint64_t offset = getnum(db, file, node->line, attr, tok);
+					ADDARRAY(res->offsets, offset);
+					str = NULL;
+				}
+				if (str)
+					fprintf(stderr, "%s:%d: invalid offsets: %s\n", file, node->line, str);
+				free(tmp);
 			} else if (!strcmp(attr->name, "length")) {
 				res->length = getnumattrib(db, file, node->line, attr);
 			} else if (!strcmp(attr->name, "stride")) {
@@ -502,6 +516,13 @@ static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 				res->varinfo.varsetstr = strdup(getattrib(db, file, node->line, attr));
 			} else if (!strcmp(attr->name, "variants")) {
 				res->varinfo.variantsstr = strdup(getattrib(db, file, node->line, attr));
+			} else if (!strcmp(attr->name, "index")) {
+				const char *enumname = getattrib(db, file, node->line, attr);
+				res->index = rnn_findenum(db, enumname);
+				if (!res->index) {
+					fprintf(stderr, "%s:%d: invalid enum name \"%s\"\n", file, node->line, enumname);
+					db->estatus = 1;
+				}
 			} else {
 				fprintf (stderr, "%s:%d: wrong attribute \"%s\" for %s\n", file, node->line, attr->name, node->name);
 				db->estatus = 1;
@@ -900,7 +921,6 @@ static void copytypeinfo (struct rnntypeinfo *dst, struct rnntypeinfo *src, char
 	int i;
 	dst->name = src->name;
 	dst->shr = src->shr;
-	dst->add = src->add;
 	dst->min = src->min;
 	dst->max = src->max;
 	dst->align = src->align;
@@ -936,6 +956,8 @@ static struct rnndelem *copydelem (struct rnndelem *elem, char *file) {
 	int i;
 	for (i = 0; i < elem->subelemsnum; i++)
 		ADDARRAY(res->subelems, copydelem(elem->subelems[i], file));
+	for (i = 0; i < elem->offsetsnum; i++)
+		ADDARRAY(res->offsets, elem->offsets[i]);
 	return res;
 }
 
@@ -1126,6 +1148,8 @@ static void preptypeinfo(struct rnndb *db, struct rnntypeinfo *ti, char *prefix,
 			ti->type = RNN_TTYPE_FIXED;
 		} else if (!strcmp(ti->name, "ufixed")) {
 			ti->type = RNN_TTYPE_UFIXED;
+		} else if (!strcmp(ti->name, "a3xx_regid")) {
+			ti->type = RNN_TTYPE_A3XX_REGID;
 		} else {
 			ti->type = RNN_TTYPE_HEX;
 			fprintf (stderr, "%s: unknown type %s\n", prefix, ti->name);

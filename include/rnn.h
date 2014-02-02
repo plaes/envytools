@@ -124,6 +124,7 @@ struct rnntypeinfo {
 		RNN_TTYPE_BOOLEAN,
 		RNN_TTYPE_FIXED,
 		RNN_TTYPE_UFIXED,
+		RNN_TTYPE_A3XX_REGID,
 	} type;
 	struct rnnenum *eenum;
 	struct rnnbitset *ebitset;
@@ -135,7 +136,6 @@ struct rnntypeinfo {
 	int valsnum;
 	int valsmax;
 	int shr;
-	int add;
 	uint64_t min, max, align, radix;
 	int minvalid, maxvalid, alignvalid, radixvalid;
 };
@@ -198,6 +198,9 @@ struct rnndelem {
 		RNN_ACCESS_RW,
 	} access;
 	uint64_t offset;
+	uint64_t *offsets;       /* for "array" with irregular offsets */
+	int offsetsnum;
+	int offsetsmax;
 	uint64_t length;
 	uint64_t stride;
 	struct rnndelem **subelems;
@@ -205,6 +208,7 @@ struct rnndelem {
 	int subelemsmax;
 	struct rnnvarinfo varinfo;
 	struct rnntypeinfo typeinfo;
+	struct rnnenum *index;   /* for arrays, for symbolic idx values */
 	char *fullname;
 	char *file;
 };

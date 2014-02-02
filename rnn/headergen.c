@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2013 Rob Clark <robdclark@gmail.com>
  * Copyright (C) 2010-2011 Marcin Kościelnicki <koriakin@0x04.net>
  * Copyright (C) 2010 Luca Barbieri <luca@luca-barbieri.com>
  * Copyright (C) 2010 Marcin Slusarz <marcin.slusarz@gmail.com>
@@ -24,6 +25,11 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/* modified version of headergen which uses enums and inline fxns for
+ * type safety.. based on original headergen
+ */
+#define _GNU_SOURCE
+
 #include "rnn.h"
 #include "util.h"
 #include <stdio.h>
@@ -35,10 +41,11 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include <assert.h>
 
-uint64_t *strides = 0;
-int stridesnum = 0;
-int stridesmax = 0;
+struct rnndelem **elems = NULL;
+int elemsnum = 0;
+int elemsmax = 0;
 
 int startcol = 64;
 
@@ -113,17 +120,93 @@ void printvalue (struct rnnvalue *val, int shift) {
 
 void printbitfield (struct rnnbitfield *bf, int shift);
 
-void printtypeinfo (struct rnntypeinfo *ti, char *prefix, int shift, char *file) {
-	if (ti->shr)
-		printdef (prefix, "SHR", 1, ti->shr, file);
-	if (ti->minvalid)
-		printdef (prefix, "MIN", 0, ti->min, file);
-	if (ti->maxvalid)
-		printdef (prefix, "MAX", 0, ti->max, file);
-	if (ti->alignvalid)
-		printdef (prefix, "ALIGN", 0, ti->align, file);
-	if (ti->radixvalid)
-		printdef (prefix, "RADIX", 0, ti->radix, file);
+void printtypeinfo (struct rnntypeinfo *ti, struct rnnbitfield *bf,
+		char *prefix, int shift, char *file) {
+	FILE *dst = findfout(file);
+	enum rnnttype intype = ti->type;
+	char *typename = NULL;
+	uint32_t mask = bf ? bf->mask : 0xffffffff;
+	uint32_t width = bf ? (1 + bf->high - bf->low) : 32;
+
+	/* for fixed point, input type (arg to fxn) is float: */
+	if ((ti->type == RNN_TTYPE_FIXED) || (ti->type == RNN_TTYPE_UFIXED))
+		intype = RNN_TTYPE_FLOAT;
+
+	/* for toplevel register (ie. not bitfield), only generate accessor
+	 * fxn for special cases (float, shr, min/max, etc):
+	 */
+	if (bf || ti->shr || ti->minvalid || ti->maxvalid || ti->alignvalid ||
+			ti->radixvalid || (intype == RNN_TTYPE_FLOAT)) {
+		switch (intype) {
+		case RNN_TTYPE_HEX:
+		case RNN_TTYPE_UINT:
+		case RNN_TTYPE_A3XX_REGID:
+			typename = "uint32_t";
+			break;
+		case RNN_TTYPE_INT:
+			typename = "int32_t";
+			break;
+		case RNN_TTYPE_FLOAT:
+			typename = "float";
+			break;
+		case RNN_TTYPE_ENUM:
+			asprintf(&typename, "enum %s", ti->name);
+			break;
+		}
+	}
+
+	/* for boolean, just generate a #define flag.. rather than inline fxn */
+	if (intype == RNN_TTYPE_BOOLEAN) {
+		printdef(bf->fullname, 0, 0, mask, file);
+		return;
+	}
+
+	if (typename) {
+		printdef(prefix, "MASK", 0, mask, file);
+		printdef(prefix, "SHIFT", 1, shift, file);
+
+		fprintf(dst, "static inline uint32_t %s(%s val)\n", prefix, typename);
+		fprintf(dst, "{\n");
+
+		if (ti->minvalid || ti->maxvalid || ti->alignvalid) {
+			fprintf(dst, "\tassert(1");
+			if (ti->minvalid)
+				fprintf(dst, " && (val >= %lu)", ti->min);
+			if (ti->maxvalid)
+				fprintf(dst, " && (val <= %lu)", ti->max);
+			if (ti->alignvalid)
+				fprintf(dst, " && !(val %% %lu)", ti->align);
+			fprintf(dst, ");\n");
+		}
+
+		fprintf(dst, "\treturn ((");
+
+		if ((ti->type == RNN_TTYPE_FIXED) || (ti->type == RNN_TTYPE_UFIXED)) {
+			fprintf(dst, "((uint32_t)(val * %d.0))", 2 * ti->radix);
+		} else if (ti->type == RNN_TTYPE_FLOAT) {
+			if (width == 32)
+				fprintf(dst, "fui(val)");
+			else if (width == 16)
+				fprintf(dst, "util_float_to_half(val)");
+			else
+				assert(!"invalid float size");
+		} else {
+			fprintf(dst, "val");
+		}
+
+		if (ti->shr)
+			fprintf(dst, " >> %d", ti->shr);
+
+		fprintf(dst, ") << %s__SHIFT) & %s__MASK;\n", prefix, prefix);
+		fprintf(dst, "}\n");
+
+		if (intype == RNN_TTYPE_ENUM)
+			free(typename);
+	}
+
+	if (bf)
+		shift += bf->low;
+
 	int i;
 	for (i = 0; i < ti->valsnum; i++)
 		printvalue(ti->vals[i], shift);
@@ -134,55 +217,90 @@ void printtypeinfo (struct rnntypeinfo *ti, char *prefix, int shift, char *file)
 void printbitfield (struct rnnbitfield *bf, int shift) {
 	if (bf->varinfo.dead)
 		return;
-	if (bf->typeinfo.type == RNN_TTYPE_BOOLEAN) {
-		printdef (bf->fullname, 0, 0, bf->mask << shift, bf->file);
-	} else {
-		printdef (bf->fullname, "MASK", 0, bf->mask << shift, bf->file);
-		printdef (bf->fullname, "SHIFT", 1, bf->low + shift, bf->file);
-	}
-	printtypeinfo (&bf->typeinfo, bf->fullname, bf->low + shift, bf->file);
+	printtypeinfo (&bf->typeinfo, bf, bf->fullname, bf->low, bf->file);
 }
 
 void printdelem (struct rnndelem *elem, uint64_t offset) {
 	if (elem->varinfo.dead)
 		return;
 	if (elem->length != 1)
-		ADDARRAY(strides, elem->stride);
+		ADDARRAY(elems, elem);
 	if (elem->name) {
-		if (stridesnum) {
-			int len, total;
+		char *regname;
+		asprintf(&regname, "REG_%s", elem->fullname);
+		if (elemsnum) {
+			int len;
 			FILE *dst = findfout(elem->file);
-			fprintf (dst, "#define %s(%n", elem->fullname, &total);
 			int i;
-			for (i = 0; i < stridesnum; i++) {
-				if (i) {
-					fprintf(dst, ", ");
-					total += 2;
+			if (elem->offsets) {
+				fprintf(dst, "static inline uint32_t __offset_%s(", elem->name);
+				if (elem->index)
+					fprintf(dst, "enum %s", elem->index->name);
+				else
+					fprintf(dst, "uint32_t");
+				fprintf(dst, " idx)\n");
+				fprintf(dst, "{\n");
+				fprintf(dst, "\tswitch (idx) {\n");
+				for (i = 0; i < elem->offsetsnum; i++) {
+					struct rnnvalue *val = NULL;
+					fprintf(dst, "\t\tcase ");
+					if (elem->index) {
+						int j;
+						for (j = 0; j < elem->index->valsnum; j++) {
+							if (elem->index->vals[j]->value == i) {
+								val = elem->index->vals[j];
+								break;
+							}
+						}
+					}
+					if (val) {
+						fprintf(dst, "%s", val->name);
+					} else {
+						fprintf(dst, "%d", i);
+					}
+					fprintf(dst, ": return 0x%08lx;\n", elem->offsets[i]);
 				}
-				fprintf (dst, "i%d%n", i, &len);
-				total += len;
+				fprintf(dst, "\t\tdefault: return INVALID_IDX(idx);\n");
+				fprintf(dst, "\t}\n");
+				fprintf(dst, "}\n");
 			}
-			fprintf (dst, ")");
-			total++;
-			seekcol (dst, total, startcol-1);
-			fprintf (dst, "(0x%08"PRIx64"", offset + elem->offset);
-			for (i = 0; i < stridesnum; i++)
-				fprintf (dst, " + %#" PRIx64 "*(i%d)", strides[i], i);
-			fprintf (dst, ")\n");
+			fprintf (dst, "static inline uint32_t %s(", regname);
+			for (i = 0; i < elemsnum; i++) {
+				if (i)
+					fprintf(dst, ", ");
+				if (elems[i]->index)
+					fprintf(dst, "enum %s ", elems[i]->index->name);
+				else
+					fprintf(dst, "uint32_t ");
+				fprintf (dst, "i%d%n", i, &len);
+			}
+			fprintf (dst, ") { return ");
+			fprintf (dst, "0x%08"PRIx64"", offset + elem->offset);
+			for (i = 0; i < elemsnum; i++) {
+				if (elems[i]->offsets)
+					fprintf(dst, " + __offset_%s(i%d)", elems[i]->name, i);
+				else
+					fprintf (dst, " + %#" PRIx64 "*i%d", elems[i]->stride, i);
+			}
+			fprintf (dst, "; }\n");
 		} else
-			printdef (elem->fullname, 0, 0, offset + elem->offset, elem->file);
+			printdef (regname, 0, 0, offset + elem->offset, elem->file);
+
+		free(regname);
+/*
 		if (elem->stride)
 			printdef (elem->fullname, "ESIZE", 0, elem->stride, elem->file);
 		if (elem->length != 1)
 			printdef (elem->fullname, "LEN", 0, elem->length, elem->file);
-		printtypeinfo (&elem->typeinfo, elem->fullname, 0, elem->file);
+*/
+		printtypeinfo (&elem->typeinfo, NULL, elem->fullname, 0, elem->file);
 	}
 	fprintf (findfout(elem->file), "\n");
 	int j;
 	for (j = 0; j < elem->subelemsnum; j++) {
 		printdelem(elem->subelems[j], offset + elem->offset);
 	}
-	if (elem->length != 1) stridesnum--;
+	if (elem->length != 1) elemsnum--;
 }
 
 void print_file_info_(FILE *dst, struct stat* sb, struct tm* tm)
@@ -214,8 +332,8 @@ void printhead(struct fout f, struct rnndb *db) {
 		"/* Autogenerated file, DO NOT EDIT manually!\n"
 		"\n"
 		"This file was generated by the rules-ng-ng headergen tool in this git repository:\n"
-		"http://github.com/envytools/envytools/\n"
-		"git clone https://github.com/envytools/envytools.git\n"
+		"http://github.com/freedreno/envytools/\n"
+		"git clone https://github.com/freedreno/envytools.git\n"
 		"\n"
 		"The rules-ng-ng source files this header was generated from are:\n");
 	unsigned maxlen = 0;
@@ -297,11 +415,23 @@ int main(int argc, char **argv) {
 	}
 
 	for (i = 0; i < db->enumsnum; i++) {
-		if (db->enums[i]->isinline)
-			continue;
+		FILE *dst = NULL;
 		int j;
-		for (j = 0; j < db->enums[i]->valsnum; j++)
-			printvalue (db->enums[i]->vals[j], 0);
+		for (j = 0; j < db->enums[i]->valsnum; j++) {
+			if (!dst) {
+				dst = findfout(db->enums[i]->vals[j]->file);
+				fprintf(dst, "enum %s {\n", db->enums[i]->name);
+			}
+			if (0xffff0000 & db->enums[i]->vals[j]->value)
+				fprintf(dst, "\t%s = 0x%08lx,\n", db->enums[i]->vals[j]->name,
+						db->enums[i]->vals[j]->value);
+			else
+				fprintf(dst, "\t%s = %lu,\n", db->enums[i]->vals[j]->name,
+						db->enums[i]->vals[j]->value);
+		}
+		if (dst) {
+			fprintf(dst, "};\n\n");
+		}
 	}
 	for (i = 0; i < db->bitsetsnum; i++) {
 		if (db->bitsets[i]->isinline)
