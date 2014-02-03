@@ -4,6 +4,27 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="cedrus_copyright.xml"/>
 
+<enum name="CEDARX_ENGINE">
+    <value name="MPEG" value="0"/>
+    <value name="H264" value="1"/>
+    <value name="VC1" value="2"/>
+    <value name="RMVB" value="3"/>
+    <!-- values 4..6 are reserved -->
+    <value name="RESET" value="7"/> <!-- Place engine in reset mode -->
+    <value name="MPEG_ENC" value="8"/>
+    <!-- value 9 is reserved -->
+    <value name="ISP" value="10"/>
+    <value name="AVC" value="11"/>
+</enum>
+
+<enum name="CEDARX_MEMTYPE">
+    <value name="DDR1_16" value="0x0"/>
+    <value name="DDR1_32" value="0x1"/>
+    <value name="DDR2_16" value="0x1"/>
+    <value name="DDR2_32" value="0x2"/>
+    <value name="DDR3_16" value="0x2"/>
+    <value name="DDR3_32" value="0x3"/>
+</enum>
 
 <domain name="VE">
     <doc>
@@ -13,6 +34,22 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
     <brief>General Video Engine register definitions.</brief>
     <reg32 offset="0x0000" name="CTRL">
         <brief>Sub-Engine Select and RAM type select</brief>
+        <bitfield name="ENGINE" low="0" high="3" type="CEDARX_ENGINE"/>
+        <bitfield name="RESERVED_4_7" low="4" high="7"/>
+        <bitfield name="UNK_8_9" low="8" high="9"/>
+        <bitfield name="RESERVED_10_15" low="10" high="15"/>
+        <bitfield name="MEM_TYPE" low="16" high="17" type="CEDARX_MEMTYPE"/>
+        <bitfield name="RESERVED_18_19" low="18" high="19"/>
+        <!-- one more memtype? -->
+        <bitfield name="UNK_20" pos="20" type="boolean"/>
+        <!-- needs to be set to decode pictures with more than 2048px width -->
+        <bitfield name="UNK_21" pos="21" type="boolean"/>
+        <bitfield name="RESERVED_22_23" low="22" high="23"/>
+        <!-- one more memtype? -->
+        <bitfield name="UNK_24_25" low="24" high="25"/>
+        <bitfield name="RESERVED_26_27" low="26" high="27"/>
+        <bitfield name="UNK_28" pos="28" type="boolean"/>
+        <bitfield name="RESERVED_29_31" low="29" high="31"/>
     </reg32>
     <reg32 offset="0x0004" name="RESET"/>
     <doc>Sub-Engines Reset</doc>
