@@ -51,10 +51,22 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
         <bitfield name="UNK_28" pos="28" type="boolean"/>
         <bitfield name="RESERVED_29_31" low="29" high="31"/>
     </reg32>
-    <reg32 offset="0x0004" name="RESET"/>
-    <doc>Sub-Engines Reset</doc>
-    <reg32 offset="0x0008" name="CYCLES_COUNTER"/>
-    <doc>Clock Cycles counter</doc>
+    <reg32 offset="0x0004" name="RESET">
+        <brief>Sub-Engines Reset</brief>
+        <bitfield name="UNK_0" pos="0" type="boolean"/><!-- reset bit? -->
+        <bitfield name="UNUSED_1_3" low="1" high="3"/><!-- unused??? -->
+        <bitfield name="UNK_4" pos="4" type="boolean"/>
+        <bitfield name="UNUSED_5_31" low="5" high="31"/><!-- unused??? -->
+    </reg32>
+    <reg32 offset="0x0008" name="CYCLE_COUNTER">
+        <brief>Clock Cycles counter</brief>
+        <bitfield name="VALUE" low="0" high="30">
+            <doc>Number of cycles since counter was enabled</doc>
+        </bitfield>
+        <bitfield name="ENABLE" pos="31" type="boolean">
+            <doc>0 - disabled, 1 - enabled</doc>
+        </bitfield>
+    </reg32>
     <reg32 offset="0x000c" name="OVERTIMETH"/>      <!-- TODO: check -->
     <reg32 offset="0x0010" name="MMCREQ_WNUM"/>     <!-- TODO: check -->
     <reg32 offset="0x0014" name="CACHEREG_WNUM"/>   <!-- TODO: check -->
